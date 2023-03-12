@@ -70,6 +70,7 @@ public class Config {
                 .connectionPool(new ConnectionPool(poll, 5, TimeUnit.MINUTES))
                 .protocols(Arrays.asList(Protocol.HTTP_1_1, Protocol.HTTP_2))
                 .sslSocketFactory(sslContext.getSocketFactory(), TRUST_ALL_CERTS)
+                .hostnameVerifier((hostname, session) -> true)
                 .build();
         OkHttp3ClientHttpRequestFactory okHttp3ClientHttpRequestFactory = new OkHttp3ClientHttpRequestFactory(okHttpClient);
         return new RestTemplate(okHttp3ClientHttpRequestFactory);
@@ -97,6 +98,8 @@ public class Config {
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
                 .connectionPool(new ConnectionPool(poll, 5, TimeUnit.MINUTES))
                 .protocols(Collections.singletonList(Protocol.HTTP_1_1))
+                .sslSocketFactory(sslContext.getSocketFactory(), TRUST_ALL_CERTS)
+                .hostnameVerifier((hostname, session) -> true)
                 .build();
         OkHttp3ClientHttpRequestFactory okHttp3ClientHttpRequestFactory = new OkHttp3ClientHttpRequestFactory(okHttpClient);
         return new RestTemplate(okHttp3ClientHttpRequestFactory);
