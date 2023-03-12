@@ -1,7 +1,7 @@
 FROM openjdk:8-jdk-alpine as builder
 WORKDIR /app
 COPY ./java .
-RUN apk add maven && mvn clean package -DskipTests
+RUN apk add maven && mvn clean package -DskipTests -s ./settings.xml
 
 FROM openjdk:8-jdk-alpine
 WORKDIR /app
