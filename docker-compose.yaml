@@ -14,6 +14,19 @@ services:
         limits:
           cpus: '1'
           memory: 512M
+  java:
+    build:
+      context: .
+      dockerfile: ./java/Dockerfile
+    ports:
+      - "8081:8080"
+    networks:
+      - local
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2048M
 
 networks:
   local:
