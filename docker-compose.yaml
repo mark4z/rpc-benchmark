@@ -1,0 +1,20 @@
+version: '3'
+services:
+  #http
+  http:
+    build:
+      context: .
+      dockerfile: ./http/Dockerfile
+    ports:
+      - "8080:8080"
+    networks:
+      - local
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+
+networks:
+  local:
+    driver: bridge
