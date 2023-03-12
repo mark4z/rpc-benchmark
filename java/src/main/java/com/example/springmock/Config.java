@@ -36,7 +36,6 @@ public class Config {
                 .connectionPool(new ConnectionPool(poll, 1, TimeUnit.SECONDS))
                 .protocols(Arrays.asList(Protocol.HTTP_1_1, Protocol.HTTP_2))
                 .sslSocketFactory(getSSl().getSocketFactory())
-                .hostnameVerifier((hostname, session) -> true)
                 .build();
         OkHttp3ClientHttpRequestFactory okHttp3ClientHttpRequestFactory = new OkHttp3ClientHttpRequestFactory(okHttpClient);
         return new RestTemplate(okHttp3ClientHttpRequestFactory);
@@ -48,7 +47,6 @@ public class Config {
                 .connectionPool(new ConnectionPool(poll, 5, TimeUnit.MINUTES))
                 .protocols(Collections.singletonList(Protocol.HTTP_1_1))
                 .sslSocketFactory(getSSl().getSocketFactory())
-                .hostnameVerifier((hostname, session) -> true)
                 .build();
         OkHttp3ClientHttpRequestFactory okHttp3ClientHttpRequestFactory = new OkHttp3ClientHttpRequestFactory(okHttpClient);
         return new RestTemplate(okHttp3ClientHttpRequestFactory);
