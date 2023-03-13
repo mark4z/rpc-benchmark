@@ -1,33 +1,37 @@
 package main
 
 import (
+	context "context"
 	"flag"
-	"io"
+	"fmt"
+	"google.golang.org/grpc"
 	"log"
-	"net/http"
+	"net"
 )
 
 var addr = flag.String("addr", ":8080", "the address to connect to")
-var tls = flag.Bool("tls", true, "Connection uses TLS if true, else plain Http")
+
+type server struct {
+	UnimplementedSimpleServiceServer
+}
+
+func (s *server) SimpleRpc(ctx context.Context, in *SimpleRequest) (*SimpleReply, error) {
+	log.Println("Request ", "SimpleRpc", "Grpc")
+	message := in.Message
+	log.Printf("Response: %d bytes written", len(message))
+	return &SimpleReply{Message: message}, nil
+}
 
 func main() {
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		log.Printf("Request: %s %s %s", r.Method, r.URL.Path, r.Proto)
-		req, err := io.ReadAll(r.Body)
-		if err != nil {
-			log.Printf("Error reading request body: %v", err)
-		}
-		write, err := w.Write(req)
-		if err != nil {
-			log.Printf("Error writing response: %v", err)
-		}
-		log.Printf("Response: %d bytes written", write)
-	})
-	if *tls {
-		log.Printf("Listening on %s with TLS", *addr)
-		log.Fatal(http.ListenAndServeTLS(*addr, "./http.local.pem", "./http.local-key.pem", nil))
-	} else {
-		log.Printf("Listening on %s ", *addr)
-		log.Fatal(http.ListenAndServe(*addr, nil))
+	flag.Parse()
+	lis, err := net.Listen("tcp", fmt.Sprintf(*addr))
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
+	}
+	s := grpc.NewServer()
+	RegisterSimpleServiceServer(s, &server{})
+	log.Printf("server listening at %v", lis.Addr())
+	if err := s.Serve(lis); err != nil {
+		log.Fatalf("failed to serve: %v", err)
 	}
 }

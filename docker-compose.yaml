@@ -14,12 +14,25 @@ services:
         limits:
           cpus: '1'
           memory: 256M
+  gprc:
+    build:
+      context: .
+      dockerfile: ./grpc/Dockerfile
+    ports:
+      - "8081:8080"
+    networks:
+      - local
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 256M
   java:
     build:
       context: .
       dockerfile: ./java/Dockerfile
     ports:
-      - "8081:8080"
+      - "8082:8080"
     networks:
       - local
     deploy:
