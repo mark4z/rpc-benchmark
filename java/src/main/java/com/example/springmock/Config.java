@@ -34,7 +34,6 @@ public class Config {
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
                 .connectionPool(new ConnectionPool(poll, 1, TimeUnit.SECONDS))
                 .protocols(Arrays.asList(Protocol.HTTP_2, Protocol.HTTP_1_1))
-                .sslSocketFactory(getSSl().getSocketFactory(), (X509TrustManager) getTrustManagers()[0])
                 .build();
         OkHttp3ClientHttpRequestFactory okHttp3ClientHttpRequestFactory = new OkHttp3ClientHttpRequestFactory(okHttpClient);
         return new RestTemplate(okHttp3ClientHttpRequestFactory);
@@ -45,7 +44,6 @@ public class Config {
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
                 .connectionPool(new ConnectionPool(poll, 5, TimeUnit.MINUTES))
                 .protocols(Collections.singletonList(Protocol.HTTP_1_1))
-                .sslSocketFactory(getSSl().getSocketFactory(), (X509TrustManager) getTrustManagers()[0])
                 .build();
         OkHttp3ClientHttpRequestFactory okHttp3ClientHttpRequestFactory = new OkHttp3ClientHttpRequestFactory(okHttpClient);
         return new RestTemplate(okHttp3ClientHttpRequestFactory);
@@ -55,36 +53,5 @@ public class Config {
     public RestTemplate normalRestTemplate() throws Exception {
         OkHttp3ClientHttpRequestFactory okHttp3ClientHttpRequestFactory = new OkHttp3ClientHttpRequestFactory();
         return new RestTemplate(okHttp3ClientHttpRequestFactory);
-    }
-
-    private TrustManager[] getTrustManagers() throws Exception {
-        // Load CAs from an InputStream
-        // (could be from a resource or ByteArrayInputStream or ...)
-        CertificateFactory cf = null;
-        cf = CertificateFactory.getInstance("X.509");
-        // From https://www.washington.edu/itconnect/security/ca/load-der.crt
-        //read the file from spring resources
-        ClassPathResource classPathResource = new ClassPathResource("rootCA.pem");
-        InputStream caInput = new BufferedInputStream(classPathResource.getInputStream());
-        Certificate ca = cf.generateCertificate(caInput);
-        System.out.println("ca=" + ((X509Certificate) ca).getSubjectDN());
-        caInput.close();
-        // Create a KeyStore containing our trusted CAs
-        String keyStoreType = KeyStore.getDefaultType();
-        KeyStore keyStore = KeyStore.getInstance(keyStoreType);
-        keyStore.load(null, null);
-        keyStore.setCertificateEntry("ca", ca);
-        // Create a TrustManager that trusts the CAs in our KeyStore
-        String tmfAlgorithm = TrustManagerFactory.getDefaultAlgorithm();
-        TrustManagerFactory tmf = TrustManagerFactory.getInstance(tmfAlgorithm);
-        tmf.init(keyStore);
-        return tmf.getTrustManagers();
-    }
-
-    private SSLContext getSSl() throws Exception {
-        // Create an SSLContext that uses our TrustManager
-        SSLContext context = SSLContext.getInstance("TLS");
-        context.init(null, getTrustManagers(), null);
-        return context;
     }
 }
