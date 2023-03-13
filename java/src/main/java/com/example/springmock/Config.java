@@ -23,8 +23,8 @@ import java.util.concurrent.TimeUnit;
 public class Config {
     @Value("${poll:1000}")
     private int poll;
-    @Value("${address:https://http.local:8080}")
-    private String address;
+    @Value("${address:https://grpc:8081}")
+    private String grpcAddress;
 
     @Bean
     public RestTemplate http2RestTemplate() throws Exception {
@@ -54,7 +54,7 @@ public class Config {
 
     @Bean
     public SimpleServiceGrpc.SimpleServiceBlockingStub simpleService() {
-        ManagedChannel channel = Grpc.newChannelBuilder(address, InsecureChannelCredentials.create())
+        ManagedChannel channel = Grpc.newChannelBuilder(grpcAddress, InsecureChannelCredentials.create())
                 .build();
         return SimpleServiceGrpc.newBlockingStub(channel);
     }

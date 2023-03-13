@@ -50,4 +50,9 @@ public class Controller {
                         .setMessage(RandomStringUtils.random(size))
                         .build()).getMessage();
     }
+
+    @GetMapping("/nothing")
+    public String nothing() {
+        return "nothing";
+    }
 }
