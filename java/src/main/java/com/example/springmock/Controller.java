@@ -14,10 +14,17 @@ public class Controller {
 
     private final RestTemplate restTemplate;
     private final RestTemplate http2RestTemplate;
+    private final RestTemplate normalRestTemplate;
 
-    public Controller(RestTemplate http2RestTemplate, RestTemplate restTemplate) {
+    public Controller(RestTemplate http2RestTemplate, RestTemplate restTemplate, RestTemplate normalRestTemplate) {
         this.http2RestTemplate = http2RestTemplate;
         this.restTemplate = restTemplate;
+        this.normalRestTemplate = normalRestTemplate;
+    }
+
+    @GetMapping("/")
+    public String normal() {
+        return normalRestTemplate.postForObject(address, "{}", String.class);
     }
 
     @GetMapping("/http1/{size}")

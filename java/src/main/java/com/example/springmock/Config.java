@@ -14,10 +14,9 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
-import java.io.*;
-import java.security.KeyManagementException;
+import java.io.BufferedInputStream;
+import java.io.InputStream;
 import java.security.KeyStore;
-import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -25,17 +24,17 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
+
 @Configuration
 public class Config {
     @Value("${poll:1000}")
     private int poll;
-
     @Bean
     public RestTemplate http2RestTemplate() throws Exception {
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
                 .connectionPool(new ConnectionPool(poll, 1, TimeUnit.SECONDS))
-                .protocols(Arrays.asList(Protocol.HTTP_1_1, Protocol.HTTP_2))
-                .sslSocketFactory(getSSl().getSocketFactory())
+                .protocols(Arrays.asList(Protocol.HTTP_2, Protocol.HTTP_1_1))
+                .sslSocketFactory(getSSl().getSocketFactory(), (X509TrustManager) getTrustManagers()[0])
                 .build();
         OkHttp3ClientHttpRequestFactory okHttp3ClientHttpRequestFactory = new OkHttp3ClientHttpRequestFactory(okHttpClient);
         return new RestTemplate(okHttp3ClientHttpRequestFactory);
@@ -46,38 +45,46 @@ public class Config {
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
                 .connectionPool(new ConnectionPool(poll, 5, TimeUnit.MINUTES))
                 .protocols(Collections.singletonList(Protocol.HTTP_1_1))
-                .sslSocketFactory(getSSl().getSocketFactory())
+                .sslSocketFactory(getSSl().getSocketFactory(), (X509TrustManager) getTrustManagers()[0])
                 .build();
         OkHttp3ClientHttpRequestFactory okHttp3ClientHttpRequestFactory = new OkHttp3ClientHttpRequestFactory(okHttpClient);
         return new RestTemplate(okHttp3ClientHttpRequestFactory);
     }
 
-    private SSLContext getSSl() throws Exception {
+    @Bean
+    public RestTemplate normalRestTemplate() throws Exception {
+        OkHttp3ClientHttpRequestFactory okHttp3ClientHttpRequestFactory = new OkHttp3ClientHttpRequestFactory();
+        return new RestTemplate(okHttp3ClientHttpRequestFactory);
+    }
+
+    private TrustManager[] getTrustManagers() throws Exception {
         // Load CAs from an InputStream
-// (could be from a resource or ByteArrayInputStream or ...)
+        // (could be from a resource or ByteArrayInputStream or ...)
         CertificateFactory cf = null;
         cf = CertificateFactory.getInstance("X.509");
-// From https://www.washington.edu/itconnect/security/ca/load-der.crt
+        // From https://www.washington.edu/itconnect/security/ca/load-der.crt
         //read the file from spring resources
         ClassPathResource classPathResource = new ClassPathResource("rootCA.pem");
         InputStream caInput = new BufferedInputStream(classPathResource.getInputStream());
         Certificate ca = cf.generateCertificate(caInput);
         System.out.println("ca=" + ((X509Certificate) ca).getSubjectDN());
         caInput.close();
-// Create a KeyStore containing our trusted CAs
+        // Create a KeyStore containing our trusted CAs
         String keyStoreType = KeyStore.getDefaultType();
         KeyStore keyStore = KeyStore.getInstance(keyStoreType);
         keyStore.load(null, null);
         keyStore.setCertificateEntry("ca", ca);
-
-// Create a TrustManager that trusts the CAs in our KeyStore
+        // Create a TrustManager that trusts the CAs in our KeyStore
         String tmfAlgorithm = TrustManagerFactory.getDefaultAlgorithm();
         TrustManagerFactory tmf = TrustManagerFactory.getInstance(tmfAlgorithm);
         tmf.init(keyStore);
+        return tmf.getTrustManagers();
+    }
 
-// Create an SSLContext that uses our TrustManager
+    private SSLContext getSSl() throws Exception {
+        // Create an SSLContext that uses our TrustManager
         SSLContext context = SSLContext.getInstance("TLS");
-        context.init(null, tmf.getTrustManagers(), null);
+        context.init(null, getTrustManagers(), null);
         return context;
     }
 }
