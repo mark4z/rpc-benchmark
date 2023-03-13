@@ -12,4 +12,4 @@ WORKDIR /app
 COPY --from=builder /app/target/*.jar app.jar
 COPY ./ca/http.local.pem .
 RUN keytool -import -alias vault -storepass changeit -keystore $JAVA_HOME/jre/lib/security/cacerts -noprompt -trustcacerts -file http.local.pem
-ENTRYPOINT ["java","-jar","/app/app.jar","-Xms1800m","-Xms1800m","server.tomcat.max-threads=1000"]
+ENTRYPOINT ["java","-jar","/app/app.jar","-Xms1800m","-Xms1800m","server.tomcat.max-threads=10000"]
