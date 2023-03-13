@@ -136,7 +136,7 @@ under the License.
     <mirrors>
         <mirror>
             <id>aliyunmaven</id>
-            <mirrorOf>central,jcenter,!rdc-releases,!rdc-snapshots</mirrorOf>
+            <mirrorOf>*</mirrorOf>
             <name>阿里云公共仓库</name>
             <url>https://maven.aliyun.com/repository/public</url>
         </mirror>
