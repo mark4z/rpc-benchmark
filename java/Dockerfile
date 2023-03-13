@@ -1,6 +1,8 @@
 FROM openjdk:8-jdk-alpine as builder
 WORKDIR /app
-COPY ./java .
+COPY ./java/pom.xml .
+RUN mvn dependency:go-offline
+COPY ./java/src ./src
 RUN apk add maven && mvn clean package -DskipTests
 
 FROM openjdk:8-jdk-alpine
