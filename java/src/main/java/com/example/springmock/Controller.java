@@ -9,7 +9,7 @@ import org.springframework.web.client.RestTemplate;
 
 @RestController
 public class Controller {
-    @Value("${address:https://http:8080}")
+    @Value("${address:https://http.local:8080}")
     private String address;
 
     private final RestTemplate restTemplate;
