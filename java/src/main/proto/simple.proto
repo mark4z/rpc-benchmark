@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package com.example.springmock.grpc;
+
+option java_multiple_files = true;
+option java_package = "com.example.springmock.grpc";
+option java_outer_classname = "SimpleProto";
+
+// The greeting service definition.
+service SimpleService {
+  // Sends a greeting
+  rpc SimpleRpc (SimpleRequest) returns (SimpleReply) {
+  }
+}
+
+// The request message containing the user's name.
+message SimpleRequest {
+  string message = 1;
+}
+
+// The response message containing the greetings
+message SimpleReply {
+  string message = 1;
+}

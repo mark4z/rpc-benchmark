@@ -1,25 +1,19 @@
 package com.example.springmock;
 
+import com.example.springmock.grpc.SimpleServiceGrpc;
+import io.grpc.Grpc;
+import io.grpc.InsecureChannelCredentials;
+import io.grpc.ManagedChannel;
 import okhttp3.ConnectionPool;
 import okhttp3.OkHttpClient;
 import okhttp3.Protocol;
+import org.apache.http.client.CredentialsProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.client.OkHttp3ClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-import javax.net.ssl.X509TrustManager;
-import java.io.BufferedInputStream;
-import java.io.InputStream;
-import java.security.KeyStore;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
@@ -29,6 +23,9 @@ import java.util.concurrent.TimeUnit;
 public class Config {
     @Value("${poll:1000}")
     private int poll;
+    @Value("${address:https://http.local:8080}")
+    private String address;
+
     @Bean
     public RestTemplate http2RestTemplate() throws Exception {
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
@@ -53,5 +50,12 @@ public class Config {
     public RestTemplate normalRestTemplate() throws Exception {
         OkHttp3ClientHttpRequestFactory okHttp3ClientHttpRequestFactory = new OkHttp3ClientHttpRequestFactory();
         return new RestTemplate(okHttp3ClientHttpRequestFactory);
+    }
+
+    @Bean
+    public SimpleServiceGrpc.SimpleServiceBlockingStub simpleService() {
+        ManagedChannel channel = Grpc.newChannelBuilder(address, InsecureChannelCredentials.create())
+                .build();
+        return SimpleServiceGrpc.newBlockingStub(channel);
     }
 }
