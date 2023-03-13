@@ -22,9 +22,10 @@ RUN mvn dependency:go-offline -s settings.xml
 COPY ./java/src ./src
 RUN mvn clean package -DskipTests -s settings.xml
 
-FROM amazoncorretto:11.0.18-alpine3.17
+FROM amazoncorretto:11.0.18
+ENV JAVA_HOME=/usr/lib/jvm/java-11-amazon-corretto
 WORKDIR /app
 COPY --from=builder /app/target/*.jar app.jar
 COPY ./ca/http.local.pem .
-RUN keytool -import -alias vault -storepass changeit -keystore $JAVA_HOME/jre/lib/security/cacerts -noprompt -trustcacerts -file http.local.pem
+RUN keytool -import -alias vault -storepass changeit -keystore $JAVA_HOME/../jre/lib/security/cacerts -noprompt -trustcacerts -file http.local.pem
 ENTRYPOINT ["java","-jar","/app/app.jar","-Xms1800m","-Xms1800m","server.tomcat.max-threads=10000"]
