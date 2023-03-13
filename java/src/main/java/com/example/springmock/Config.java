@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 public class Config {
     @Value("${poll:1000}")
     private int poll;
-    @Value("${grpcAddress:grpc:8081}")
+    @Value("${grpcAddress:grpc:8080}")
     private String grpcAddress;
 
     @Bean

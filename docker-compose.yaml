@@ -14,7 +14,7 @@ services:
         limits:
           cpus: '1'
           memory: 256M
-  gprc:
+  grpc:
     build:
       context: .
       dockerfile: ./grpc/Dockerfile
