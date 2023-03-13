@@ -32,7 +32,7 @@ public class Config {
     @Bean
     public RestTemplate http2RestTemplate() throws Exception {
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
-                .connectionPool(new ConnectionPool(poll, 1, TimeUnit.SECONDS))
+                .connectionPool(new ConnectionPool(poll, 5, TimeUnit.MINUTES))
                 .protocols(Arrays.asList(Protocol.HTTP_2, Protocol.HTTP_1_1))
                 .build();
         OkHttp3ClientHttpRequestFactory okHttp3ClientHttpRequestFactory = new OkHttp3ClientHttpRequestFactory(okHttpClient);
