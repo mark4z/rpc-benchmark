@@ -1,0 +1,11 @@
+###
+GET http://localhost:8082/grpc/64
+
+###
+GET http://localhost:8082/http1/64
+
+###
+GET http://localhost:8082/http2/64
+
+###
+GET http://localhost:8082/nothing
