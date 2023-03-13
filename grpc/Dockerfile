@@ -5,5 +5,5 @@ RUN go mod tidy && go build -o /go/bin/grpc
 
 FROM alpine
 WORKDIR /app
-COPY --from=builder /go/bin/http .
+COPY --from=builder /go/bin/grpc .
 CMD ["./grpc"]
