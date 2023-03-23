@@ -7,13 +7,31 @@ services:
       dockerfile: ./http/Dockerfile
     ports:
       - "8080:8080"
+    entrypoint: ./http -tls=false
     networks:
       - local
     deploy:
       resources:
         limits:
+          cpus: '0.25'
+          memory: 256M
+  nginx:
+    image: nginx:latest
+    ports:
+      - "10000:10000"
+    networks:
+      - local
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./ca/localhost.pem:/etc/nginx/localhost.pem
+      - ./ca/localhost-key.pem:/etc/nginx/localhost-key.pem
+    deploy:
+      resources:
+        limits:
           cpus: '0.5'
           memory: 256M
+
+
   grpc:
     build:
       context: .

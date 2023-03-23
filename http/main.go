@@ -5,29 +5,50 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strconv"
+	"time"
 )
 
 var addr = flag.String("addr", ":8080", "the address to connect to")
 var tls = flag.Bool("tls", true, "Connection uses TLS if true, else plain Http")
 
 func main() {
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	flag.Parse()
+	// q: why addr is not changed?
+	// a: because flag.Parse() will parse the flag and change the value of addr
+	handle("/", nil)
+	handle("/delay", func(body []byte) []byte {
+		if delay, err := strconv.Atoi(string(body)); err == nil {
+			time.Sleep(time.Duration(delay) * time.Millisecond)
+		}
+		return []byte{}
+	})
+	if *tls {
+		log.Printf("Listening on %s with TLS", *addr)
+		log.Fatal(http.ListenAndServeTLS(*addr, "./localhost.pem", "./localhost-key.pem", nil))
+	} else {
+		log.Printf("Listening on %s ", *addr)
+		log.Fatal(http.ListenAndServe(*addr, nil))
+	}
+}
+
+func handle(path string, fn func(body []byte) []byte) {
+	http.HandleFunc(path, func(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Request: %s %s %s", r.Method, r.URL.Path, r.Proto)
 		req, err := io.ReadAll(r.Body)
 		if err != nil {
 			log.Printf("Error reading request body: %v", err)
+			return
 		}
-		write, err := w.Write(req)
+		defer r.Body.Close()
+		res := req
+		if fn != nil {
+			res = fn(req)
+		}
+		write, err := w.Write(res)
 		if err != nil {
 			log.Printf("Error writing response: %v", err)
 		}
 		log.Printf("Response: %d bytes written", write)
 	})
-	if *tls {
-		log.Printf("Listening on %s with TLS", *addr)
-		log.Fatal(http.ListenAndServeTLS(*addr, "./http.local.pem", "./http.local-key.pem", nil))
-	} else {
-		log.Printf("Listening on %s ", *addr)
-		log.Fatal(http.ListenAndServe(*addr, nil))
-	}
 }
