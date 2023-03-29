@@ -15,7 +15,7 @@ services:
         limits:
           cpus: '0.25'
           memory: 256M
-  nginx:
+  http-nginx:
     image: nginx:1.23-alpine
     ports:
       - "10000:10000"
