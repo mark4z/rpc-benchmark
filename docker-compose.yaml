@@ -18,7 +18,7 @@ services:
   http-nginx:
     image: nginx:1.23-alpine
     ports:
-      - "10000:10000"
+      - "443:10000"
     networks:
       - local
     volumes:
