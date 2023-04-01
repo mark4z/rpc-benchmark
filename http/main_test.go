@@ -3,7 +3,6 @@ package main
 import (
 	httptls "crypto/tls"
 	"fmt"
-	"golang.org/x/net/http2"
 	"io"
 	"net/http"
 	"strings"
@@ -19,9 +18,11 @@ func TestReq(t *testing.T) {
 	client := http.Client{
 		Transport: ts,
 	}
-	http2.ConfigureTransport(ts)
+	//if err := http2.ConfigureTransport(ts); err != nil {
+	//	t.Fatal(err)
+	//}
 	//enable http2
-	request, err := http.NewRequest("POST", "https://openapi-ft2.amwaynet.com.cn/amway-mock-center-core/v1/api/free/applyForDeletion/mockApi", strings.NewReader("Hello World"))
+	request, err := http.NewRequest("POST", "https://localhost:8080", strings.NewReader("Hello World"))
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -1,0 +1,9 @@
+FROM envoyproxy/envoy:v1.25-latest
+
+ENV MAX_REQUESTS_PER_CONNECTION 0
+COPY ./envoy/envoy-https-http.yaml /etc/envoy-template.yaml
+COPY ./ca/localhost.pem /etc/envoy/certs/cert.pem
+COPY ./ca/localhost-key.pem /etc/envoy/certs/key.pem
+RUN cat /etc/envoy-template.yaml | sed "s/max_requests_per_connection: 0/max_requests_per_connection: $MAX_REQUESTS_PER_CONNECTION/g" > /etc/envoy.yaml
+RUN chmod go+r /etc/envoy.yaml
+CMD /usr/local/bin/envoy -c /etc/envoy.yaml
