@@ -15,12 +15,44 @@ services:
         limits:
           cpus: '0.5'
           memory: 256M
-  http-nginx:
+  nginx-1000:
     build:
       context: .
       dockerfile: ./nginx/Dockerfile
+      args:
+        - MAX_REQUESTS_PER_CONNECTION=1000
     ports:
       - "443:10000"
+    networks:
+      - local
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+  nginx:
+    build:
+      context: .
+      dockerfile: ./nginx/Dockerfile
+      args:
+        - MAX_REQUESTS_PER_CONNECTION=1000000
+    ports:
+      - "9999:10000"
+    networks:
+      - local
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 512M
+  envoy-1000:
+    build:
+      context: .
+      dockerfile: ./envoy/Dockerfile-proxy-https-http
+      args:
+        - MAX_REQUESTS_PER_CONNECTION=1000
+    ports:
+      - "10000:10000"
     networks:
       - local
     deploy:
@@ -32,8 +64,10 @@ services:
     build:
       context: .
       dockerfile: ./envoy/Dockerfile-proxy-https-http
+      args:
+        - MAX_REQUESTS_PER_CONNECTION=0
     ports:
-      - "10000:10000"
+      - "10001:10000"
     networks:
       - local
     deploy:
