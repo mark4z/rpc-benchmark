@@ -66,7 +66,7 @@ func process(client *http.Client) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
-	request, _ := http.NewRequestWithContext(ctx, "POST", "https://127.0.0.1/delay", strings.NewReader("1"))
+	request, _ := http.NewRequestWithContext(ctx, "POST", "https://127.0.0.1:10000/delay", strings.NewReader("1"))
 	do, err := client.Do(request)
 	if err != nil {
 		fmt.Println(err)
