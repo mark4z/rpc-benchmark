@@ -25,6 +25,7 @@ func main() {
 			MaxConnsPerHost:     100,
 			MaxIdleConnsPerHost: 100,
 		},
+		Timeout: 10 * time.Second,
 	}
 
 	start := time.Now()
