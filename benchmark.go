@@ -63,7 +63,7 @@ func process(client *http.Client) {
 		},
 	}
 	ctx := httptrace.WithClientTrace(context.Background(), trace)
-	ctx, cancel := context.WithCancel(ctx)
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
 	request, _ := http.NewRequestWithContext(ctx, "POST", "https://127.0.0.1/delay", strings.NewReader("1"))
