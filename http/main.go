@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"sync/atomic"
 	"time"
 )
 
@@ -23,6 +24,14 @@ func main() {
 		}
 		return []byte{}
 	})
+
+	var count int64
+	handle("/count", func(body []byte) []byte {
+		c := atomic.AddInt64(&count, 1)
+		log.Printf("Count: %d", c)
+		return nil
+	})
+
 	if *tls {
 		log.Printf("Listening on %s with TLS", *addr)
 		log.Fatal(http.ListenAndServeTLS(*addr, "./localhost.pem", "./localhost-key.pem", nil))
